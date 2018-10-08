@@ -14,29 +14,28 @@ namespace my_slam
 class Camera
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef std::shared_ptr<Camera> Ptr;
 
     Camera() = default;
-    Camera(const Eigen::Matrix3d& intrinsic, const double depth_scale) :
-        intrinsic_{intrinsic}, depth_scale_{depth_scale}, extrinsic_{Eigen::Isometry3d::Identity()} {};
-    Camera(const Eigen::Matrix3d& intrinsic, const double depth_scale, const Eigen::Isometry3d& extrinsic) :
-        intrinsic_{intrinsic}, depth_scale_{depth_scale}, extrinsic_{extrinsic} {};
+    Camera(const Eigen::Matrix3d &intrinsic, double depth_scale);
+    Camera(const Eigen::Matrix3d &intrinsic, double depth_scale, const Eigen::Isometry3d &extrinsic);
 
-    bool SetExtrinsic(const Eigen::Isometry3d& extrinsics);
-    bool SetIntrinsic(const Eigen::Matrix3d& intrisic);
-    bool SetDepthScale(const double depth_scale);
+    bool SetExtrinsic(const Eigen::Isometry3d& extrinsic);
+    bool SetIntrinsic(const Eigen::Matrix3d& intrinsic);
+    bool SetDepthScale(double depth_scale);
 
-    double GetDepthScale() const;
+    double GetDepthScale() const { return depth_scale_; }
 
-    static Eigen::Matrix3d MakeIntrinsic(const double fx, const double fy, const double cx, const double cy);
-    static Eigen::Isometry3d MakeExtrinsic(const Eigen::Matrix3d& rotation, const Eigen::Vector3d translation);
+    static Eigen::Matrix3d MakeIntrinsic(double fx, double fy, double cx, double cy);
+    static Eigen::Isometry3d MakeExtrinsic(const Eigen::Matrix3d &rotation, const Eigen::Vector3d &translation);
 
-    Eigen::Vector3d World2Camera(const Eigen::Vector3d& point);
-    Eigen::Vector3d Camera2World(const Eigen::Vector3d& point);
-    Eigen::Vector2d Camera2Pixel(const Eigen::Vector3d& point);
-    Eigen::Vector3d Pixel2Camera(const Eigen::Vector2d& pixel, const double depth);
-    Eigen::Vector3d Pixel2World(const Eigen::Vector2d& pixel, const double depth);
-    Eigen::Vector2d World2Pixel(const Eigen::Vector3d& point);
+    Eigen::Vector3d World2Camera(const Eigen::Vector3d &point) const;
+    Eigen::Vector3d Camera2World(const Eigen::Vector3d &point) const;
+    Eigen::Vector2d Camera2Pixel(const Eigen::Vector3d &point) const;
+    Eigen::Vector3d Pixel2Camera(const Eigen::Vector2d &pixel, double depth) const;
+    Eigen::Vector3d Pixel2World(const Eigen::Vector2d &pixel, double depth) const;
+    Eigen::Vector2d World2Pixel(const Eigen::Vector3d &point) const;
 
 private:
     double depth_scale_;
@@ -44,7 +43,7 @@ private:
     Eigen::Isometry3d extrinsic_;
 };
 
-}
+} // namespace my_slam
 
 
 
