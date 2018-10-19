@@ -39,9 +39,9 @@ set(G2O_LIBRARIES
         ${G2O_TYPES_SLAM3D}
 )
 
-message(STATUS "------------- Find yaml-cpp ----------------")
-find_package(yaml-cpp REQUIRED)
-message(STATUS "Found yaml-cpp Version: ${yaml-cpp_VERSION}.")
+message(STATUS "------------- Find Sophus ----------------")
+find_package(Sophus REQUIRED)
+message(STATUS "Found Sophus Version: ${Sophus_VERSION}.")
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/include
@@ -49,6 +49,7 @@ include_directories(
         ${EIGEN3_INCLUDE_DIRS}
         ${CERES_INCLUDE_DIRS}
         ${G2O_INCLUDE_DIR}
+        ${Sophus_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -59,7 +60,8 @@ add_library(${PROJECT_NAME} SHARED
         src/Config.cpp
         src/VisualOdometry.cpp
 )
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES})
 
 add_executable(run_vo examples/run_vo.cpp)
-target_link_libraries(run_vo ${PROJECT_NAME})
+target_link_libraries(run_vo ${PROJECT_NAME} ${OpenCV_LIBRARIES})
 

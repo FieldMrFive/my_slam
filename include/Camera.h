@@ -17,15 +17,14 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef std::shared_ptr<Camera> Ptr;
 
-    Camera() = default;
     Camera(const Eigen::Matrix3d &intrinsic, double depth_scale);
     Camera(const Eigen::Matrix3d &intrinsic, double depth_scale, const Eigen::Isometry3d &extrinsic);
 
-    bool SetExtrinsic(const Eigen::Isometry3d& extrinsic);
-    bool SetIntrinsic(const Eigen::Matrix3d& intrinsic);
-    bool SetDepthScale(double depth_scale);
+    void SetExtrinsic(const Eigen::Isometry3d& extrinsic) { extrinsic_ = extrinsic; }
 
     double GetDepthScale() const { return depth_scale_; }
+    Eigen::Matrix3d GetIntrinsic() const { return intrinsic_; }
+    Eigen::Isometry3d GetExtrinsic() const { return extrinsic_; }
 
     static Eigen::Matrix3d MakeIntrinsic(double fx, double fy, double cx, double cy);
     static Eigen::Isometry3d MakeExtrinsic(const Eigen::Matrix3d &rotation, const Eigen::Vector3d &translation);

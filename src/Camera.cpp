@@ -2,8 +2,6 @@
 // Created by Kuangye Chen on 9/25/18.
 //
 
-#include <Camera.h>
-
 #include "Camera.h"
 
 namespace my_slam
@@ -14,24 +12,6 @@ Camera::Camera(const Eigen::Matrix3d &intrinsic, const double depth_scale, const
 
 Camera::Camera(const Eigen::Matrix3d &intrinsic, const double depth_scale) :
         intrinsic_{intrinsic}, depth_scale_{depth_scale}, extrinsic_{Eigen::Isometry3d::Identity()} {}
-
-bool Camera::SetExtrinsic(const Eigen::Isometry3d &extrinsic)
-{
-    extrinsic_ = extrinsic;
-    return true;
-}
-
-bool Camera::SetIntrinsic(const Eigen::Matrix3d &intrinsic)
-{
-    intrinsic_ = intrinsic;
-    return true;
-}
-
-bool Camera::SetDepthScale(const double depth_scale)
-{
-    depth_scale_ = depth_scale;
-    return true;
-}
 
 Eigen::Matrix3d Camera::MakeIntrinsic(const double fx, const double fy, const double cx, const double cy)
 {

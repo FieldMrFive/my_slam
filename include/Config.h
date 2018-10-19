@@ -16,10 +16,13 @@ class Config
 public:
     typedef std::shared_ptr<Config> Ptr;
 
-    Config(const std::string &filename);
+    explicit Config(const std::string &filename);
 
     template<typename T>
-    T GetValueByKey(const std::string &key);
+    T GetValueByKey(const std::string &key) const
+    {
+        return static_cast<T>(file_[key]);
+    }
 
 private:
     cv::FileStorage file_;

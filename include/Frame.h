@@ -19,12 +19,16 @@ class Frame
 public:
     typedef std::shared_ptr<Frame> Ptr;
 
-    Frame() = default;
-    Frame(uint32_t id, double time_stamp = 0, Camera::Ptr camera = nullptr,
-          const cv::Mat& color_img = cv::Mat(), const cv::Mat& depth_img = cv::Mat());
-    double GetDepth(const cv::KeyPoint& key_point);
-    bool HasPoint(const Eigen::Vector3d& point);
-    Eigen::Vector3d GetCameraCenter();
+    explicit Frame(uint32_t id, double time_stamp = 0, Camera::Ptr camera = nullptr,
+            const cv::Mat& color_img = cv::Mat(), const cv::Mat& depth_img = cv::Mat());
+    double GetDepth(const cv::KeyPoint& feature_point) const;
+    bool HasPoint(const Eigen::Vector3d& point) const;
+    Eigen::Vector3d GetCameraCenter() const;
+
+    uint32_t GetID() const { return id_; }
+    const cv::Mat GetColorImage() const { return color_img_; }
+    const cv::Mat GetDepthImage() const { return depth_img_; }
+    const Camera::Ptr GetCamera() const { return camera_; }
 
 private:
     uint32_t id_;

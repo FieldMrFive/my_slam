@@ -19,10 +19,12 @@ public:
     typedef std::shared_ptr<Map> Ptr;
 
     Map() = default;
+    bool InsertKeyFrame(Frame::Ptr frame);
+    bool InsertMapPoint(FeaturePoint::Ptr feature_point);
 
 private:
-    std::unordered_map<uint32_t, FeaturePoint> map_points_;
-    std::unordered_map<uint32_t, Frame> key_frames_;
+    std::unordered_map<uint32_t, FeaturePoint::Ptr> map_points_;
+    std::unordered_map<uint32_t, Frame::Ptr> key_frames_;
 };
 
 }
