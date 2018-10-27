@@ -2,15 +2,16 @@
 ---
 
 dataset_dir: /Users/field/workspaces/my_slam/datasets/rgbd_dataset_freiburg1_xyz
-number_of_features: 1000
-level_pyramid: 5
-scale_factor: 1.035
-min_inliers: 50
-max_num_lost: 5
-match_ratio: 1.2
-keyframe_min_rotation: 0.03490658503988659
-keyframe_min_translation: 0.05
+number_of_features: 500
+level_pyramid: 8
+scale_factor: 1.2
+min_inliers: 10
+max_num_lost: 10
+match_ratio: 2.0
+keyframe_min_rotation: 0.1
+keyframe_min_translation: 0.1
 fx: 517.3
 fy: 516.5
 cx: 318.6
 cy: 255.3
+depth_scale: 5000

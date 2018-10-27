@@ -30,6 +30,7 @@ public:
     explicit VisualOdometry(const Config& config);
 
     bool AddFrame(Frame::Ptr frame);
+    bool Good() { return state_ != LOST; }
 
 private:
     void AddKeyFrame();

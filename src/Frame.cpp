@@ -2,9 +2,9 @@
 // Created by Kuangye Chen on 9/26/18.
 //
 
-#include <Frame.h>
-
 #include "Frame.h"
+
+#include <iostream>
 
 namespace my_slam
 {
@@ -28,7 +28,7 @@ double Frame::GetDepth(const cv::KeyPoint &feature_point) const
         for (int i = 0; i < 4; i++)
         {
             depth = static_cast<double>(depth_img_.ptr<ushort>(y + dy[i])[x + dx[i]]);
-            if ( depth != 0 )
+            if ( depth != 0. )
             {
                 return depth / camera_ -> GetDepthScale();
             }

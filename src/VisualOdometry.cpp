@@ -91,6 +91,7 @@ void VisualOdometry::AddKeyFrame()
 void VisualOdometry::ExtractFeaturePoints()
 {
     orb_ -> detect(curr_ -> GetColorImage(), curr_feature_points_);
+    std::cout << "Num features " << curr_feature_points_.size() << std::endl;
 }
 
 void VisualOdometry::ComputeDescriptors()
@@ -102,15 +103,13 @@ void VisualOdometry::FeatureMatching()
 {
     std::vector<cv::DMatch> matches;
     cv::BFMatcher matcher(cv::NORM_HAMMING);
-    matcher.match(curr_descriptors_, ref_descriptors_, matches);
-
+    matcher.match(ref_descriptors_, curr_descriptors_, matches);
     double min_dist = std::min_element(
             matches.begin(), matches.end(),
             [](const cv::DMatch& m1, const cv::DMatch& m2)
             {
                 return m1.distance < m2.distance;
             }) -> distance;
-
     feature_matches_.clear();
     for (auto const& match : matches)
     {
@@ -149,6 +148,7 @@ void VisualOdometry::PoseEstimationPnP()
 void VisualOdometry::SetRef3DPoints()
 {
     ref_3D_points_.clear();
+    ref_descriptors_ = cv::Mat();
 
     for (size_t i = 0; i < curr_feature_points_.size(); i++)
     {

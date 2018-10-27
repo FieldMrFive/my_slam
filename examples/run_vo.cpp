@@ -7,7 +7,9 @@
 #include <tuple>
 #include <vector>
 #include <string>
+#include <chrono>
 #include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
@@ -46,11 +48,6 @@ int main(int argc, char** argv)
                                                dataset_dir + depth_file, depth_ts));
     }
 
-    my_slam::Camera::Ptr camera(new my_slam::Camera(my_slam::Camera::MakeIntrinsic(
-            config.GetValueByKey<double>("fx"), config.GetValueByKey<double>("fy"),
-            config.GetValueByKey<double>("cx"), config.GetValueByKey<double>("cy")),
-            config.GetValueByKey<double>("scale_factor")));
-
     cv::viz::Viz3d vis("Visual Odometry");
     cv::viz::WCoordinateSystem world_frame(1.0), camera_frame(0.5);
     cv::Point3d cam_pos(0., -1., -1.), cam_focal_point(0., 0., 0.), cam_y_dir(0., 1., 0.);
@@ -62,10 +59,11 @@ int main(int argc, char** argv)
     vis.showWidget("World", world_frame);
     vis.showWidget("Camera", camera_frame);
 
-    std::cout << "Total " << data_list.size() << std::endl;
+    std::cout << "Total number of data " << data_list.size() << std::endl;
     uint32_t frame_seq = 0;
     for (const auto& data : data_list)
     {
+        std::cout << "--------------- One Frame ----------------" << std::endl;
         cv::Mat color = cv::imread(std::get<0>(data), cv::IMREAD_COLOR);
         cv::Mat depth = cv::imread(std::get<2>(data), cv::IMREAD_UNCHANGED);
         if (color.data == nullptr || depth.data == nullptr)
@@ -74,9 +72,40 @@ int main(int argc, char** argv)
             break;
         }
 
+        my_slam::Camera::Ptr camera(new my_slam::Camera(my_slam::Camera::MakeIntrinsic(
+                config.GetValueByKey<double>("fx"), config.GetValueByKey<double>("fy"),
+                config.GetValueByKey<double>("cx"), config.GetValueByKey<double>("cy")),
+                config.GetValueByKey<double>("depth_scale")));
         my_slam::Frame::Ptr pFrame(new my_slam::Frame(frame_seq, std::get<1>(data), camera, color, depth));
+        frame_seq += 1;
 
+        auto start = std::chrono::system_clock::now();
         vo -> AddFrame(pFrame);
-        std::cout << "vo one frame" << std::endl;
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "VO costs " << elapsed_seconds.count() << "s" << std::endl;
+
+        if (!vo -> Good())
+        {
+            std::cout << "VO lost." << std::endl;
+            break;
+        }
+
+        Eigen::Matrix3d cam_pose_R = pFrame -> GetCamera() -> GetExtrinsic().inverse().rotation().matrix();
+        Eigen::Vector3d cam_pose_t = pFrame -> GetCamera() -> GetExtrinsic().inverse().translation().matrix();
+        cv::Affine3d M(
+                cv::Affine3d::Mat3(
+                        cam_pose_R(0,0), cam_pose_R(0,1), cam_pose_R(0,2),
+                        cam_pose_R(1,0), cam_pose_R(1,1), cam_pose_R(1,2),
+                        cam_pose_R(2,0), cam_pose_R(2,1), cam_pose_R(2,2)
+                ),
+                cv::Affine3d::Vec3(
+                        cam_pose_t(0), cam_pose_t(1), cam_pose_t(2)
+                )
+        );
+        cv::imshow("image", color );
+        cv::waitKey(1);
+        vis.setWidgetPose( "Camera", M);
+        vis.spinOnce(1, false);
     }
 }

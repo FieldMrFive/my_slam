@@ -11,7 +11,7 @@ namespace my_slam
 
 bool Map::InsertKeyFrame(Frame::Ptr frame)
 {
-    std::cout << "Num of key frames: " << key_frames_.size();
+    std::cout << "Num of key frames: " << key_frames_.size() << std::endl;
     if (key_frames_.find(frame -> GetID()) == key_frames_.end())
     {
         key_frames_.insert({frame -> GetID(), frame});

@@ -49,7 +49,7 @@ Eigen::Vector2d Camera::Camera2Pixel(const Eigen::Vector3d &point) const
 Eigen::Vector3d Camera::Pixel2Camera(const Eigen::Vector2d &pixel, const double depth) const
 {
     Eigen::Vector3d homo_pixel(pixel(0), pixel(1), 1.);
-    return depth / depth_scale_ * intrinsic_.inverse() * homo_pixel;
+    return depth * intrinsic_.inverse() * homo_pixel;
 }
 
 Eigen::Vector3d Camera::Pixel2World(const Eigen::Vector2d &pixel, const double depth) const
