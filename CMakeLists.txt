@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.12)
 project(my_slam)
 
 set(CMAKE_CXX_STANDARD 14)
-set( CMAKE_BUILD_TYPE "Release" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 message(STATUS "Standard: C++${CMAKE_CXX_STANDARD}")
+message(STATUS "CXX FLAGS: ${CMAKE_CXX_FLAGS}")
+
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
 list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
 
 message(STATUS "--------------- Find OpenCV ----------------")
