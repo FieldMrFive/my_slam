@@ -11,10 +11,9 @@
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
-
-#include <g2o/types/sba/types_six_dof_expmap.h>
 
 #include <Config.h>
 #include <VisualOdometry.h>
@@ -96,7 +95,7 @@ int main(int argc, char** argv)
 
         Eigen::Matrix3d cam_pose_R = pFrame -> GetCamera() -> GetExtrinsic().inverse().rotation().matrix();
         Eigen::Vector3d cam_pose_t = pFrame -> GetCamera() -> GetExtrinsic().inverse().translation().matrix();
-        cv::Affine3d M(
+        cv::Affine3d cam_pose(
                 cv::Affine3d::Mat3(
                         cam_pose_R(0,0), cam_pose_R(0,1), cam_pose_R(0,2),
                         cam_pose_R(1,0), cam_pose_R(1,1), cam_pose_R(1,2),
@@ -106,9 +105,15 @@ int main(int argc, char** argv)
                         cam_pose_t(0), cam_pose_t(1), cam_pose_t(2)
                 )
         );
-        cv::imshow("image", color );
+
+        cv::Mat color_with_feature = color.clone();
+        for (const auto& key_point : vo -> GetCurrentFeature())
+        {
+            cv::circle(color_with_feature, key_point.pt, 5, cv::Scalar(0, 255, 0), 1);
+        }
+        cv::imshow("image", color_with_feature);
         cv::waitKey(1);
-        vis.setWidgetPose( "Camera", M);
+        vis.setWidgetPose("Camera", cam_pose);
         vis.spinOnce(1, false);
     }
 }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(my_slam)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 message(STATUS "Standard: C++${CMAKE_CXX_STANDARD}")
 message(STATUS "CXX FLAGS: ${CMAKE_CXX_FLAGS}")

@@ -32,7 +32,8 @@ public:
     explicit VisualOdometry(const Config& config);
 
     bool AddFrame(Frame::Ptr frame);
-    bool Good() { return state_ != LOST; }
+    bool Good() const { return state_ != LOST; }
+    const std::vector<cv::KeyPoint>& GetCurrentFeature() const { return curr_feature_points_; }
 
 private:
     void AddKeyFrame();
