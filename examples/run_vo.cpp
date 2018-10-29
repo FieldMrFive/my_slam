@@ -14,6 +14,8 @@
 #include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
 
+#include <g2o/types/sba/types_six_dof_expmap.h>
+
 #include <Config.h>
 #include <VisualOdometry.h>
 #include <Camera.h>
@@ -26,7 +28,7 @@ int main(int argc, char** argv)
         std::cerr << "Usage: ./run_vo config_file\n"
                   << "config_file: config for VO." << std::endl;
     }
-    std::cout << argv[1] << std::endl;
+    std::cout << "Config: " << argv[1] << std::endl;
     my_slam::Config config(argv[1]);
     my_slam::VisualOdometry::Ptr vo(new my_slam::VisualOdometry(config));
 
@@ -39,6 +41,7 @@ int main(int argc, char** argv)
     }
 
     std::vector<std::tuple<std::string, double, std::string, double>> data_list;
+    std::cout << "Read data." << std::endl;
     while (!fin.eof())
     {
         std::string rgb_file, depth_file;
@@ -59,7 +62,7 @@ int main(int argc, char** argv)
     vis.showWidget("World", world_frame);
     vis.showWidget("Camera", camera_frame);
 
-    std::cout << "Total number of data " << data_list.size() << std::endl;
+    std::cout << "Total number of data: " << data_list.size() << std::endl;
     uint32_t frame_seq = 0;
     for (const auto& data : data_list)
     {

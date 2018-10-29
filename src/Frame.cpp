@@ -4,8 +4,6 @@
 
 #include "Frame.h"
 
-#include <iostream>
-
 namespace my_slam
 {
 

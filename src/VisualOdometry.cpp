@@ -10,6 +10,13 @@
 #include <opencv2/calib3d.hpp>
 #include <algorithm>
 #include <iostream>
+#include <chrono>
+#include <g2o/core/block_solver.h>
+#include <g2o/core/optimization_algorithm_levenberg.h>
+#include <g2o/types/sba/types_six_dof_expmap.h>
+#include <g2o/solvers/dense/linear_solver_dense.h>
+
+#include <g2oTypes.h>
 
 namespace my_slam
 {
@@ -24,7 +31,10 @@ VisualOdometry::VisualOdometry(const Config& config) :
     match_ratio_{config.GetValueByKey<double>("match_ratio")},
     keyframe_min_rot_{config.GetValueByKey<double>("keyframe_min_rotation")},
     keyframe_min_trans_{config.GetValueByKey<double>("keyframe_min_translation")},
-    orb_{cv::ORB::create(num_of_features_, scale_factor_, level_pyramid_)} {}
+    orb_{cv::ORB::create(num_of_features_, scale_factor_, level_pyramid_)},
+    ref_3D_points_{}, curr_feature_points_{}, feature_matches_{},
+    curr_descriptors_{}, ref_descriptors_{},
+    transform_estimate_{} {}
 
 bool VisualOdometry::AddFrame(Frame::Ptr frame)
 {
@@ -140,8 +150,43 @@ void VisualOdometry::PoseEstimationPnP()
     num_inliers_ = inliers.rows;
     std::cout << "PnP inliers: " << num_inliers_ << std::endl;
     transform_estimate_ = Sophus::SE3d(
-            Sophus::SO3d(Eigen::Quaterniond(Eigen::AngleAxisd(rvec_eigen.norm(), rvec_eigen.normalized()))),
+            Eigen::Quaterniond(Eigen::AngleAxisd(rvec_eigen.norm(), rvec_eigen.normalized())),
             Eigen::Vector3d(tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0))
+    );
+
+    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 2>> BlockSolver;
+    auto linearSolver = g2o::make_unique<g2o::LinearSolverDense<BlockSolver::PoseMatrixType>>();
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg (
+            g2o::make_unique<BlockSolver>(std::move(linearSolver))
+    );
+    g2o::SparseOptimizer optimizer;
+    optimizer.setAlgorithm(solver);
+
+    auto pose = new g2o::VertexSE3Expmap();
+    pose -> setId(0);
+    pose -> setEstimate(g2o::SE3Quat(
+            transform_estimate_.rotationMatrix(),
+            transform_estimate_.translation()
+    ));
+    optimizer.addVertex(pose);
+
+    for (int32_t i = 0; i < num_inliers_; i++)
+    {
+        int32_t index = inliers.at<int32_t>(i, 0);
+        auto edge = new EdgeProjectXYZ2UVPoseOnly();
+        edge -> setId(i);
+        edge -> setVertex(0, pose);
+        edge -> camera_ = curr_ -> GetCamera();
+        edge -> point_ = Eigen::Vector3d(points_3d[index].x, points_3d[index].y, points_3d[index].z);
+        edge -> setMeasurement(Eigen::Vector2d(points_2d[index].x, points_2d[index].y));
+        edge -> setInformation(Eigen::Matrix2d::Identity());
+        optimizer.addEdge(edge);
+    }
+    optimizer.initializeOptimization();
+    optimizer.optimize(10);
+    transform_estimate_ = Sophus::SE3d(
+            Eigen::Quaterniond(pose -> estimate().rotation()),
+            Eigen::Vector3d(pose -> estimate().translation())
     );
 }
 
