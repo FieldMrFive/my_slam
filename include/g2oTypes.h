@@ -17,11 +17,11 @@ class EdgeProjectXYZ2UVPoseOnly : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    virtual void computeError();
-    virtual void linearizeOplus();
+    void computeError() override;
+    void linearizeOplus() override;
 
-    virtual bool read(std::istream& in) { return true; }
-    virtual bool write(std::ostream& out) const { return true; }
+    bool read(std::istream& in) override { return true; }
+    bool write(std::ostream& out) const override { return true; }
 
     Eigen::Vector3d point_;
     Camera::Ptr camera_;

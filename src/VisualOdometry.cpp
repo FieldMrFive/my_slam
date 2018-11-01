@@ -154,7 +154,7 @@ void VisualOdometry::PoseEstimationPnP()
             Eigen::Vector3d(tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0))
     );
 
-    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 2>> BlockSolver;
+    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> BlockSolver;
     auto linearSolver = g2o::make_unique<g2o::LinearSolverDense<BlockSolver::PoseMatrixType>>();
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg (
             g2o::make_unique<BlockSolver>(std::move(linearSolver))
