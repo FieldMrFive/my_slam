@@ -12,7 +12,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
 
 message(STATUS "--------------- Find OpenCV ----------------")
-find_package(OpenCV 3.4 REQUIRED)
+find_package(OpenCV 4.0 REQUIRED)
 message(STATUS "Found OpenCV Version: ${OpenCV_VERSION}.")
 
 message(STATUS "--------------- Find Eigen -----------------")

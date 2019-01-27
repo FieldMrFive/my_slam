@@ -11,7 +11,9 @@
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <memory>
 #include <g2o/core/block_solver.h>
+#include <g2o/core/sparse_optimizer.h>
 #include <g2o/core/optimization_algorithm_levenberg.h>
 #include <g2o/types/sba/types_six_dof_expmap.h>
 #include <g2o/solvers/dense/linear_solver_dense.h>
@@ -153,14 +155,12 @@ void VisualOdometry::PoseEstimationPnP()
             Eigen::Quaterniond(Eigen::AngleAxisd(rvec_eigen.norm(), rvec_eigen.normalized())),
             Eigen::Vector3d(tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0))
     );
-
-    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> BlockSolver;
-    auto linearSolver = g2o::make_unique<g2o::LinearSolverDense<BlockSolver::PoseMatrixType>>();
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg (
-            g2o::make_unique<BlockSolver>(std::move(linearSolver))
-    );
+    typedef g2o::BlockSolver<g2o::BlockSolverTraits<-1, -1>> BlockSolver;
+    auto linearSolver_ptr = std::make_unique<g2o::LinearSolverDense<BlockSolver::PoseMatrixType>>();
+    auto blockSolver_ptr = std::make_unique<BlockSolver>(linearSolver_ptr.get());
+    auto solver_ptr = std::make_unique<g2o::OptimizationAlgorithmLevenberg>(blockSolver_ptr.get());
     g2o::SparseOptimizer optimizer;
-    optimizer.setAlgorithm(solver);
+    optimizer.setAlgorithm(solver_ptr.get());
 
     auto pose = new g2o::VertexSE3Expmap();
     pose -> setId(0);
@@ -169,7 +169,6 @@ void VisualOdometry::PoseEstimationPnP()
             transform_estimate_.translation()
     ));
     optimizer.addVertex(pose);
-
     for (int32_t i = 0; i < num_inliers_; i++)
     {
         int32_t index = inliers.at<int32_t>(i, 0);
